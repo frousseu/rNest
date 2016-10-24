@@ -2,12 +2,12 @@
 \alias{nestwatch}
 \docType{data}
 \title{
-The Nest Watch database}
+Bird observation data}
 \description{
-Current content of the Nest Watch database}
+A small excerpt from the NestWatch database (BSC)}
 \usage{data(nestwatch)}
 \format{
-  A data frame with 513056 observations on the following 42 variables.
+  A data frame with a small number of nest observations on the following 42 variables.
   \describe{
     \item{\code{nest_id}}{a numeric vector}
     \item{\code{status_code}}{a character vector}
@@ -54,10 +54,10 @@ Current content of the Nest Watch database}
   }
 }
 \details{
-The database presented here has been filtered and modified to be usable by Rnest.}
+The database presented here has been filtered and modified to be usable by rNest.}
 \source{
 To be described}
 \references{
-BSC. 2011. Project NestWatch. Bird Studies Canada / Études d’oiseaux Canada, URL: http://www.bsc-eoc.org
+BSC. 2011. Project NestWatch. Bird Studies Canada / Ã‰tudes d'oiseaux Canada, URL: http://www.bsc-eoc.org
 }
 

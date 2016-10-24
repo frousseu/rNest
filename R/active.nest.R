@@ -20,23 +20,23 @@ function(d,useprecalc=FALSE,error=FALSE,nparam=NULL,sp=FALSE,year=FALSE,layer=FA
       me16<-"selected region"
       me17<-c("No nest found for the","region")
      }else{
-      me1<-"Aucun nid trouvé pour les espèces sélectionnées."
-      me2<-"Certaines espèces n'ont pas été trouvées dans les données:"
-      me3<-"Aucun nid trouvé pour les années/espèces sélectionnées."
-      me4<-"Aucun nid trouvé pour cette combinaison années/espèces."
-      me5<-"Des nids de certaines espèces n'ont pas été trouvées pour les années spécifiées:"
-      me6<-"Certaines espèces absentes des paramètres de nidification:"
-      me7<-"Aucune espèce présente dans les paramètres de nidification."
-      me8<-"Paramètres de nidification manquant pour les espèces suivantes:"
-      me9<-"Aucun fichier de forme fourni ou aucune région interactive fournie."
-      me10<-"Aucune donnée fournie."
-      me11<-"Ne pas utiliser la valeur NA pour les attributs du fichier de forme. Certains ont été trouvés dans les colonnes:"
-      me12<-"Aucun nid trouvé dans les régions spécifiées."
-      me13<-"Aucun nid trouvé dans la région spécifiée ou première colonne des attributs du fichier de forme contenant des NAs."
-      me14<-"Tracez une région à agrandir en utilisant le bouton de gauche\nUtilisez le bouton de droite pour terminer la sélection"
-      me15<-"Sélectionnez les régions en utilisant le bouton de gauche\nUtilisez le bouton de droite pour terminer la sélection"
-      me16<-"région sélectionnée"
-      me17<-c("Aucun nid trouvé pour les régions","")
+      me1<-"Aucun nid trouv? pour les esp?ces s?lectionn?es."
+      me2<-"Certaines esp?ces n'ont pas ?t? trouv?es dans les donn?es:"
+      me3<-"Aucun nid trouv? pour les ann?es/esp?ces s?lectionn?es."
+      me4<-"Aucun nid trouv? pour cette combinaison ann?es/esp?ces."
+      me5<-"Des nids de certaines esp?ces n'ont pas ?t? trouv?es pour les ann?es sp?cifi?es:"
+      me6<-"Certaines esp?ces absentes des param?tres de nidification:"
+      me7<-"Aucune esp?ce pr?sente dans les param?tres de nidification."
+      me8<-"Param?tres de nidification manquant pour les esp?ces suivantes:"
+      me9<-"Aucun fichier de forme fourni ou aucune r?gion interactive fournie."
+      me10<-"Aucune donn?e fournie."
+      me11<-"Ne pas utiliser la valeur NA pour les attributs du fichier de forme. Certains ont ?t? trouv?s dans les colonnes:"
+      me12<-"Aucun nid trouv? dans les r?gions sp?cifi?es."
+      me13<-"Aucun nid trouv? dans la r?gion sp?cifi?e ou premi?re colonne des attributs du fichier de forme contenant des NAs."
+      me14<-"Tracez une r?gion ? agrandir en utilisant le bouton de gauche\nUtilisez le bouton de droite pour terminer la s?lection"
+      me15<-"S?lectionnez les r?gions en utilisant le bouton de gauche\nUtilisez le bouton de droite pour terminer la s?lection"
+      me16<-"r?gion s?lectionn?e"
+      me17<-c("Aucun nid trouv? pour les r?gions","")
      }
      
 
@@ -63,7 +63,7 @@ function(d,useprecalc=FALSE,error=FALSE,nparam=NULL,sp=FALSE,year=FALSE,layer=FA
       if(fromtk){tkmessageBox(title="",message=me3,icon="info",type="ok")}
       stop(me3)
       }#add-on to subet years, has to be modified it is temporary for bruno
-     # peut donner un warning si une des espèces n,est pas dans la database
+     # peut donner un warning si une des esp?ces n,est pas dans la database
      if(is.character(sp)){d<-d[d$species_code%in%sp,]}
      if(nrow(d)==0){
       if(fromtk){tkmessageBox(title="",message=me4,icon="info",type="ok")}
@@ -80,8 +80,13 @@ function(d,useprecalc=FALSE,error=FALSE,nparam=NULL,sp=FALSE,year=FALSE,layer=FA
      
      ### info on nesting parameters
      #species<-read.csv("species2precocial.csv",header=T,stringsAsFactors=F)
-     species<-nestingparameters
-     if(!is.null(nparam)){species<-nparam}
+     
+     #species<-nestingparameters
+     if(!is.null(nparam)){
+     	 species<-nparam
+     }else{
+       species<-nestingparameters
+     }
      
      if(!all(unique(d$species_code)%in%species$species_code)){
           w<-which(!d$species_code%in%species$species_code)
