@@ -12,8 +12,8 @@ int.choice = FALSE, locations = FALSE, progress = TRUE, lsc = NULL, spgroup = NU
 }
 \arguments{
   \item{d}{
-A \code{data.frame} containing observations for one or several nests. An object of class \code{data.frame} with column names : nest_id, species_code,
-date, eggs, young and optionally status_code, longitude and latitude.
+A \code{data.frame} containing observations for one or several nests. An object of class \code{data.frame} with column names?: nest_id, species_code,
+date, eggs, young and optionally status_code, lon and lat.
 }
   \item{useprecalc}{
 When used with the \code{nestwatch} database, precalculated data can be used to speed up the process whent set to \code{TRUE}.
@@ -22,7 +22,7 @@ When used with the \code{nestwatch} database, precalculated data can be used to 
 When set to \code{TRUE}, nest ids generating an error (either due to erroneous data or a bug in Rnest) will be displayed.
 }
   \item{nparam}{
-A \code{data.frame} containing nesting parameters for the species. An object of class \code{data.frame} with column names : species_code, cmin,
+A \code{data.frame} containing nesting parameters for the species. An object of class \code{data.frame} with column names?: species_code, cmin,
 cmax, clutch, laying, start, incub and rearing.
 }
   \item{sp}{
@@ -75,7 +75,7 @@ A named \code{list} with stages as names and each element of the \code{list} has
 A named \code{list} with group names as names. Each element of the \code{list} has to be a \code{vector} of characters with the species 4-letters AOU codes.
 }
   \item{lang}{
-Used within the tcltk interface to choose the language used. Default value \code{"english"}, otherwise \code{"français"} is used.
+Used within the tcltk interface to choose the language used. Default value \code{"english"}, otherwise \code{"fran?ais"} is used.
 }
   \item{fromtk}{
 Used when the function is called within the tcltk interface to generate error and warning messages with \code{\link{tkmessageBox}}. Default value \code{FALSE}.
@@ -106,6 +106,6 @@ To be described
 \code{\link{chronology}}, \code{\link{nesting.activity}}
 }
 \examples{
-To be described
+To be described.
 }
 
