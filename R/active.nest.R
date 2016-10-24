@@ -85,7 +85,7 @@ function(d,useprecalc=FALSE,error=FALSE,nparam=NULL,sp=FALSE,year=FALSE,layer=FA
      if(!is.null(nparam)){
      	 species<-nparam
      }else{
-       stop("No nesting parameters given")
+       species<-nestingparameters
      }
      
      if(!all(unique(d$species_code)%in%species$species_code)){
