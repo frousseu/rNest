@@ -1,0 +1,168 @@
+# Species groupings offered in the rNest interface.
+#
+# For each attribute:
+# - columns: the columns of the birdgroupings dataset it is read from;
+# - values: the values matched in those columns;
+# - labels: the names the interface shows for those values, in the same order.
+#
+# Strings are quoted: unquoted Yes/No would be read as booleans.
+
+bird_status:
+  columns: ["MBCA_2011_Final"]
+  values:
+    - "Yes"
+    - "No"
+  labels:
+    - "federal"
+    - "provincial"
+
+bird_type:
+  columns: ["Species_gr1"]
+  values:
+    - "Landbirds"
+    - "Waterbirds"
+    - "Waterfowl"
+    - "Shorebirds"
+  labels:
+    - "landbirds"
+    - "waterbirds"
+    - "waterfowl"
+    - "shorebirds"
+
+habitat_type:
+  columns: ["Habitat1", "Habitat2", "Habitat3"]
+  values:
+    - "tf"
+    - "to"
+    - "we"
+  labels:
+    - "forest"
+    - "open"
+    - "wetland"
+
+nest_location:
+  columns: ["Nest_Type1", "Nest_Type2", "Nest_Type3"]
+  values:
+    - "gro"
+    - "wat"
+    - "bot"
+    - "cav"
+    - "man"
+    - "cli"
+    - "col"
+  labels:
+    - "ground"
+    - "water"
+    - "vegetation"
+    - "cavity"
+    - "man-made"
+    - "cliff"
+    - "colony"
+
+model_output:
+  columns: ["model"]
+  values:
+    - 1
+    - 0
+  labels:
+    - "accepted"
+    - "rejected"
+
+bird_group:
+  columns: ["Species_gr2"]
+  values:
+    - "Geese"
+    - "Swans"
+    - "Dabbling"
+    - "Diving"
+    - "Grouses and allies"
+    - "Loons and Grebes"
+    - "Petrels and allies"
+    - "Cormorants"
+    - "Pelicans"
+    - "Herons and allies"
+    - "Hawks and allies"
+    - "Rails and Cranes"
+    - "Shorebirds"
+    - "Gulls"
+    - "Terns"
+    - "Jaegers"
+    - "Auks and allies"
+    - "Doves and allies"
+    - "Cuckoos"
+    - "Owls and allies"
+    - "Nightjars"
+    - "Swallows and allies"
+    - "Hummingbirds"
+    - "Kingfishers"
+    - "Woodpeckers"
+    - "Flychatchers and allies"
+    - "Shrikes"
+    - "Vireos"
+    - "Corvids"
+    - "Pipits and allies"
+    - "Chickadees and allies"
+    - "Nuthatches and Creepers"
+    - "Wrens and Dipper"
+    - "Kinglets and allies"
+    - "Others"
+    - "Thrushes"
+    - "Thrashers and allies"
+    - "Urban birds"
+    - "Waxwings"
+    - "Longspurs"
+    - "Wood-Warblers"
+    - "Sparrows and allies"
+    - "Cardinals and allies"
+    - "Blackbirds and allies"
+    - "Finches"
+    - "Crossbills"
+    - "Redpolls"
+  labels:
+    - "geese"
+    - "swans"
+    - "dabbling ducks"
+    - "diving ducks"
+    - "grouses and allies"
+    - "loons and grebes"
+    - "petrels and allies"
+    - "cormorants"
+    - "pelicans"
+    - "herons and allies"
+    - "hawks and allies"
+    - "rails and cranes"
+    - "shorebirds"
+    - "gulls"
+    - "terns"
+    - "jaegers"
+    - "auks and allies"
+    - "doves and allies"
+    - "cuckoos"
+    - "owls and allies"
+    - "nightjars"
+    - "swallows and allies"
+    - "hummingbirds"
+    - "kingfishers"
+    - "woodpeckers"
+    - "flychatchers and allies"
+    - "shrikes"
+    - "vireos"
+    - "corvids"
+    - "pipits and allies"
+    - "chickadees and allies"
+    - "nuthatches and creepers"
+    - "wrens and dipper"
+    - "kinglets and allies"
+    - "others"
+    - "thrushes"
+    - "thrashers and allies"
+    - "urban birds"
+    - "waxwings"
+    - "longspurs"
+    - "warblers"
+    - "sparrows and allies"
+    - "cardinals and allies"
+    - "blackbirds and allies"
+    - "finches"
+    - "crossbills"
+    - "redpolls"
