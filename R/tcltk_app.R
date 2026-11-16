@@ -16,12 +16,12 @@ rNest_tcltk <- function(lang = "en") {
   )
   cat("\n  ", msg$loadingmsglabl, "\n")
   flush.console()
-  data(nestwatch)
-  data(nestingparameters)
-  data(birdgroupings)
-  data(ecodistrictscsv)
-  data(predictions)
-  data(specodistricts)
+  data(nestwatch, package = "rNest")
+  data(nestingparameters, package = "rNest")
+  data(birdgroupings, package = "rNest")
+  data(ecodistrictscsv, package = "rNest")
+  data(predictions, package = "rNest")
+  data(specodistricts, package = "rNest")
   x <- dlply(ecodistrictscsv, .(group), function(i) {
     Polygon(i[c(nrow(i), 1:nrow(i)), 1:2], hole = i$hole[1])
   })
@@ -32,7 +32,11 @@ rNest_tcltk <- function(lang = "en") {
     Polygons(res, ID = i)
   })
   dat <- ecodistrictscsv[match(names(x), ecodistrictscsv$id), ]
-  dat <- as.data.frame(do.call("rbind", strsplit(dat$id, "_")))
+  # stringsAsFactors = TRUE was the default before R 4.0
+  dat <- as.data.frame(
+    do.call("rbind", strsplit(dat$id, "_")),
+    stringsAsFactors = TRUE
+  )
   names(dat) <- c(
     "PROVINCE",
     "ecodistrict",
@@ -1461,7 +1465,7 @@ app_getopt <- function(app) {
       tkconfigure(app$tt, cursor = "watch")
       on.exit(tkconfigure(app$tt, cursor = "arrow"))
       arg <- breakshapepath(shp1)
-      usershp <- readOGR(dsn = arg[1], layer = arg[2])
+      usershp <- read_layer(dsn = arg[1], layer = arg[2])
       assign("usershp", usershp, envir = app$rnest)
     } else {
       assign("usershp", NULL, envir = app$rnest)

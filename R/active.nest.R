@@ -241,7 +241,7 @@ active.nest <- function(
       if (!is.logical(layer)) {
         if (is.character(layer)) {
           arg <- breakshapepath(layer)
-          reg <- readOGR(dsn = arg[1], layer = arg[2])
+          reg <- read_layer(dsn = arg[1], layer = arg[2])
         }
         if (inherits(layer, "SpatialPolygonsDataFrame")) {
           reg <- layer
@@ -333,7 +333,7 @@ active.nest <- function(
     }
     if (int.choice) {
       if (is.logical(layer)) {
-        data(worldHiresMapEnv)
+        data(worldHiresMapEnv, package = "mapdata")
         par(mar = c(2, 0, 0, 0))
         map(
           'worldHires',
@@ -368,7 +368,7 @@ active.nest <- function(
         # maybe here the region should be subsetted according to shapefile, region AND selection?
         if (is.character(layer)) {
           arg <- breakshapepath(layer)
-          reg <- readOGR(dsn = arg[1], layer = arg[2])
+          reg <- read_layer(dsn = arg[1], layer = arg[2])
         }
         if (inherits(layer, "SpatialPolygonsDataFrame")) {
           reg <- layer

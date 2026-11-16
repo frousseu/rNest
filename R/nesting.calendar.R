@@ -64,9 +64,9 @@ nesting.calendar <- function(
   sx <- 1:x
   y <- ncol(d)
   sy <- y:2
-  windows(
-    length(sx) * 10,
-    (length(sy) + 3.5 + 1 + ifelse(color.scale, 3, 0)) * 30
+  calendar_device(
+    width = length(sx) * 10,
+    height = (length(sy) + 3.5 + 1 + ifelse(color.scale, 3, 0)) * 30
   )
   par(mai = c(0, 0, 0, 0), mar = c(0, 0, 0, 0))
   plot(x, y, type = "n")
@@ -93,9 +93,9 @@ nesting.calendar <- function(
     1) *
     (-1.5)
   dev.off()
-  windows(
-    length(sx) * 10,
-    (length(sy) + 3.5 + 1 + ifelse(color.scale, 3, 0)) * 30
+  calendar_device(
+    width = length(sx) * 10,
+    height = (length(sy) + 3.5 + 1 + ifelse(color.scale, 3, 0)) * 30
   )
   par(mai = c(0, 0, 0, 0), mar = c(0, 0, 0, 0))
   plot(
