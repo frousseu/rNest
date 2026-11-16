@@ -1,8 +1,38 @@
 # The rNest Tcl/Tk user interface: entry points rNest()/rNid(), the main
 # window tk.nesting.calendar(), the single-nest windows and their helpers.
 
+#' Calling rNest's User Interface
+#'
+#' These functions call the user tcltk interface as well as the nestwatch data,
+#' nesting parameters and bird grouping characteristics
+#'
+#' The function `rNest` is used to call the english interface and
+#' `rNid` is used to call the french interface.
+#'
+#' Information on how to use the interface is partly contained in the different
+#' menus and buttons.
+#'
+#' When using the `rNest` function, the NestWatch data
+#' ([nestwatch]) is called first, then nesting parameters
+#' ([nestingparameters]) and bird groupings
+#' ([birdgroupings]) and finally the user interface appears with
+#' its different menus. Both functions use the `rNest_tcltk` function
+#' internal to the package.
+#'
+#' @return Opens the tcltk interface of rNest
+#' @note Currently, a bug in tcltk causes R and the user interface to crash
+#' when regions are selected interactively on a plot and the plot is
+#' prematurely closed before ending the selection. To prevent the crash, always
+#' end any selection by using the right button of the mouse and choosing the
+#' stop option displayed. Similarly, interrupting a long calculation is
+#' currently causing the same type of problem.
+#' @author Francois Rousseu <francoisrousseu@@hotmail.com>
+#' @seealso To be described
+#' @export
 rNest <- function() rNest_tcltk(lang = "en")
 
+#' @rdname rNest
+#' @export
 rNid <- function() rNest_tcltk(lang = "fr")
 
 
