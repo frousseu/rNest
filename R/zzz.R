@@ -15,11 +15,6 @@ breakshapepath <- function(path) {
 }
 
 
-cat_brs <- function(n = 1) {
-  cat(rep("\n", n))
-}
-
-
 calendarprop <- function(x, jul = 1:365, column) {
   dates <- x[, column] # change quantile !!!
   r <- range(dates, na.rm = TRUE)
