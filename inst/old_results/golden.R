@@ -5,6 +5,8 @@
 # Usage (needs an X display): Rscript golden.R <out.rds>
 out <- commandArgs(TRUE)[1]
 suppressMessages(library(rNest))
+library(tcltk)
+library(sp)
 cat("R", R.version.string, "\n")
 ns <- asNamespace("rNest")
 try_ <- function(expr) tryCatch(expr, error = function(e) structure(conditionMessage(e), class = "golden_error"))
@@ -13,6 +15,12 @@ res <- list()
 # message boxes would wait for a click: log them and answer "yes"
 MSGS <- character()
 tkmessageBox <- function(...) { MSGS <<- c(MSGS, as.character(list(...)$message)[1]); tclVar("yes") }
+# once tcltk is imported (not attached), rNest finds it in its imports first
+imp <- parent.env(ns)
+if (exists("tkmessageBox", envir = imp, inherits = FALSE)) {
+  unlockBinding("tkmessageBox", imp)
+  assign("tkmessageBox", tkmessageBox, envir = imp)
+}
 cap <- list()
 suppressMessages({
   trace("tk.nesting.calendar", exit = quote(assign("APP", environment(), globalenv())), where = ns, print = FALSE)
