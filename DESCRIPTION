@@ -46,5 +46,6 @@ Suggests:
 Description: Tools for estimating nesting chronology and describing breeding phenology in birds using nest observations.
 License: GPL-2
 Encoding: UTF-8
+Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 Config/roxygen2/version: 8.0.0

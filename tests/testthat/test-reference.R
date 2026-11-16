@@ -1,5 +1,3 @@
-context("results recorded with R 3.2.0")
-
 # Results recorded with rNest v0.2.2 on R 3.2.0, by
 # inst/old_results/golden.R. The cases that need the ecodistricts layer built
 # by the app are not tested here.
