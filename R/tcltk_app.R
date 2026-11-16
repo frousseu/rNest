@@ -62,139 +62,14 @@ tk.nesting.calendar <- function(
 ) {
   list_lang <- i18n("tk.nesting.calendar", lang)
   rnest <- new.env()
-  assign("list_lang", list_lang, envir = rnest)
-  for (i in seq_along(list_lang)) {
-    assign(names(list_lang)[i], list_lang[[i]], envir = rnest)
-  }
   assign("usershp", NULL, envir = rnest) ### to put the name in the environment
   assign("usershppath", FALSE, envir = rnest) ### to put the name in the environment
   assign("predict", FALSE, envir = rnest)
   assign("rejected_status", FALSE, envir = rnest)
   n <- 6
 
-  #species grouping info
-
-  lg <- list(
-    bird_status = c("Yes", "No"),
-    bird_type = c("Landbirds", "Waterbirds", "Waterfowl", "Shorebirds"),
-    habitat_type = c("tf", "to", "we"),
-    nest_location = c("gro", "wat", "bot", "cav", "man", "cli", "col"),
-    model_output = c(1, 0),
-    bird_group = c(
-      "Geese",
-      "Swans",
-      "Dabbling",
-      "Diving",
-      "Grouses and allies",
-      "Loons and Grebes",
-      "Petrels and allies",
-      "Cormorants",
-      "Pelicans",
-      "Herons and allies",
-      "Hawks and allies",
-      "Rails and Cranes",
-      "Shorebirds",
-      "Gulls",
-      "Terns",
-      "Jaegers",
-      "Auks and allies",
-      "Doves and allies",
-      "Cuckoos",
-      "Owls and allies",
-      "Nightjars",
-      "Swallows and allies",
-      "Hummingbirds",
-      "Kingfishers",
-      "Woodpeckers",
-      "Flychatchers and allies",
-      "Shrikes",
-      "Vireos",
-      "Corvids",
-      "Pipits and allies",
-      "Chickadees and allies",
-      "Nuthatches and Creepers",
-      "Wrens and Dipper",
-      "Kinglets and allies",
-      "Others",
-      "Thrushes",
-      "Thrashers and allies",
-      "Urban birds",
-      "Waxwings",
-      "Longspurs",
-      "Wood-Warblers",
-      "Sparrows and allies",
-      "Cardinals and allies",
-      "Blackbirds and allies",
-      "Finches",
-      "Crossbills",
-      "Redpolls"
-    )
-  )
-
-  lg2 <- list(
-    bird_status = c("federal", "provincial"),
-    bird_type = c("landbirds", "waterbirds", "waterfowl", "shorebirds"),
-    habitat_type = c("forest", "open", "wetland"),
-    nest_location = c(
-      "ground",
-      "water",
-      "vegetation",
-      "cavity",
-      "man-made",
-      "cliff",
-      "colony"
-    ),
-    model_output = c("accepted", "rejected"),
-    bird_group = c(
-      "geese",
-      "swans",
-      "dabbling ducks",
-      "diving ducks",
-      "grouses and allies",
-      "loons and grebes",
-      "petrels and allies",
-      "cormorants",
-      "pelicans",
-      "herons and allies",
-      "hawks and allies",
-      "rails and cranes",
-      "shorebirds",
-      "gulls",
-      "terns",
-      "jaegers",
-      "auks and allies",
-      "doves and allies",
-      "cuckoos",
-      "owls and allies",
-      "nightjars",
-      "swallows and allies",
-      "hummingbirds",
-      "kingfishers",
-      "woodpeckers",
-      "flychatchers and allies",
-      "shrikes",
-      "vireos",
-      "corvids",
-      "pipits and allies",
-      "chickadees and allies",
-      "nuthatches and creepers",
-      "wrens and dipper",
-      "kinglets and allies",
-      "others",
-      "thrushes",
-      "thrashers and allies",
-      "urban birds",
-      "waxwings",
-      "longspurs",
-      "warblers",
-      "sparrows and allies",
-      "cardinals and allies",
-      "blackbirds and allies",
-      "finches",
-      "crossbills",
-      "redpolls"
-    )
-  )
+  #species grouping info, see inst/extdata/species_groups.yml
+  groups <- species_groups()
 
   d <- nestwatch
   #sg<-read.csv("Species_grouping2.csv",header=T,stringsAsFactors=F,na.strings="")
@@ -221,38 +96,21 @@ tk.nesting.calendar <- function(
   x <- x[!is.na(x)]
 
   sg2 <- subset(sg, select = Species_ID)
-  for (i in 1:length(lg)) {
-    if (names(lg)[i] == "bird_status") {
-      col <- "MBCA_2011_Final"
-    }
-    if (names(lg)[i] == "bird_type") {
-      col <- "Species_gr1"
-    }
-    if (names(lg)[i] == "habitat_type") {
-      col <- c("Habitat1", "Habitat2", "Habitat3")
-    }
-    if (names(lg)[i] == "nest_location") {
-      col <- c("Nest_Type1", "Nest_Type2", "Nest_Type3")
-    }
-    if (names(lg)[i] == "model_output") {
-      col <- c("model")
-    }
-    if (names(lg)[i] == "bird_group") {
-      col <- c("Species_gr2")
-    }
-    for (j in 1:length(lg[[i]])) {
-      ans <- apply(sg[, col, drop = FALSE], 2, function(k) {
-        ans <- k == lg[[i]][j]
+  for (i in names(groups)) {
+    grp <- groups[[i]]
+    for (j in seq_along(grp$values)) {
+      ans <- apply(sg[, grp$columns, drop = FALSE], 2, function(k) {
+        ans <- k == grp$values[j]
         ans <- ifelse(is.na(ans), FALSE, ans)
         ans
       })
       ans <- apply(ans, 1, any)
       sg2 <- cbind(sg2, as.integer(ans), stringsAsFactors = FALSE)
-      names(sg2)[ncol(sg2)] <- paste(names(lg2)[i], lg2[[i]][j], sep = "_")
+      names(sg2)[ncol(sg2)] <- paste(i, grp$labels[j], sep = "_")
     }
   }
   sg <- sg2
-  rm(lg)
+  rm(grp)
 
   tclServiceMode(FALSE)
   tt <- tktoplevel()
@@ -281,69 +139,54 @@ tk.nesting.calendar <- function(
   }
   #fontHeading <- tkfont.create(family="times",size=24,weight="bold",slant="italic")
   #tkwm.title(tt,"rNest",font=fontHeading)
-  tktitle(tt) <- get("rNestname", envir = rnest)
+  tktitle(tt) <- list_lang$rNestname
 
-  header1 <- tklabel(tt, text = get("header1labl", envir = rnest))
+  header1 <- tklabel(tt, text = list_lang$header1labl)
   tkconfigure(header1, foreground = "blue")
-  header2 <- tklabel(tt, text = get("header2labl", envir = rnest))
+  header2 <- tklabel(tt, text = list_lang$header2labl)
   tkconfigure(header2, foreground = "blue")
-  header3 <- tklabel(tt, text = get("header3labl", envir = rnest))
+  header3 <- tklabel(tt, text = list_lang$header3labl)
   tkconfigure(header3, foreground = "blue")
 
   intchoice <- tkcheckbutton(tt)
   intchoiceval <- tclVar("0")
   tkconfigure(intchoice, variable = intchoiceval, text = "")
-  intchoicelab <- tklabel(tt, text = get("intchoicelabl", envir = rnest))
+  intchoicelab <- tklabel(tt, text = list_lang$intchoicelabl)
   intchoiceq <- tkbutton(
     tt,
     pady = 0,
     bg = "grey85",
     text = "?",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("intchoiceqlabl", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$intchoiceqlabl)
     }
   )
 
   zoom <- tkcheckbutton(tt)
   zoomval <- tclVar("0")
   tkconfigure(zoom, variable = zoomval, text = "")
-  zoomlab <- tklabel(tt, text = get("zoomlabl", envir = rnest))
+  zoomlab <- tklabel(tt, text = list_lang$zoomlabl)
   zoomq <- tkbutton(
     tt,
     pady = 0,
     bg = "grey85",
     text = "?",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("zoomqlabl", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$zoomqlabl)
     }
   )
 
   backsp <- tkcheckbutton(tt)
   backspval <- tclVar("0")
   tkconfigure(backsp, variable = backspval, text = "")
-  backsplab <- tklabel(tt, text = get("backsplabl", envir = rnest))
+  backsplab <- tklabel(tt, text = list_lang$backsplabl)
   backspq <- tkbutton(
     tt,
     pady = 0,
     bg = "grey85",
     text = "?",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("backspqlabl", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$backspqlabl)
     }
   )
 
@@ -452,21 +295,11 @@ tk.nesting.calendar <- function(
       temp <- FALSE
     }
     if (temp) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb1", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb1)
       return()
     }
     if (nrow(x) == 0) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb2", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb2)
       return()
     }
     x <- unique(x[, c(
@@ -488,12 +321,7 @@ tk.nesting.calendar <- function(
     #if(!identical(l$layer,FALSE) || l$int.choice){temp<-!(is.na(x$lon) | is.na(x$lat));keep<-ifelse(!temp & keep,FALSE,keep)}  ### sub 2014-01-17
     x <- x[keep, ]
     if (nrow(x) == 0) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb3", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb3)
       return()
     }
     if (!is.logical(l$layer)) {
@@ -528,12 +356,7 @@ tk.nesting.calendar <- function(
       x <- cbind(x, reg = reg[, 1, drop = FALSE], stringsAsFactors = FALSE)
       x <- x[x$reg %in% l$region, ]
       if (nrow(x) == 0) {
-        tkmessageBox(
-          title = "",
-          message = get("tkmb4", envir = rnest),
-          icon = "info",
-          type = "ok"
-        )
+        tk_info(list_lang$tkmb4)
         return()
       }
     }
@@ -550,12 +373,7 @@ tk.nesting.calendar <- function(
       par(mar = c(2, 0, 0, 0))
       plot(ecodistricts[w, ], col = "white", border = "white")
     } else {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb5", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb5)
       return()
     }
     plot(ecodistricts, add = TRUE)
@@ -588,12 +406,7 @@ tk.nesting.calendar <- function(
     on.exit(tkconfigure(tt, cursor = "arrow"))
     l <- getopt()
     if (is.logical(l$sp)) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb6", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb6)
       return()
     }
     w <- ecodistricts@data[, "ecodistrict"] %in%
@@ -617,12 +430,7 @@ tk.nesting.calendar <- function(
         plot(fshp, add = TRUE)
       }
     } else {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb7", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb7)
       return()
     }
   }
@@ -635,11 +443,7 @@ tk.nesting.calendar <- function(
       return()
     }
     if (length(l$sp) > 1 && warnsp) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb8", envir = rnest),
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb8)
     }
     w <- ecodistricts@data[, "ecodistrict"] %in%
       specodistricts$ecodis[specodistricts[, which(
@@ -661,12 +465,7 @@ tk.nesting.calendar <- function(
       (is.logical(l$sp) && tclvalue(spgr) == "usp") ||
         (is.null(l$spgroup) && tclvalue(spgr) == "ugr")
     ) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb9", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb9)
       return()
     }
     ans <- active.nest(
@@ -703,19 +502,14 @@ tk.nesting.calendar <- function(
       (is.logical(l$sp) && tclvalue(spgr) == "usp") ||
         (is.null(l$spgroup) && tclvalue(spgr) == "ugr")
     ) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb10", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb10)
       return()
     }
     if (!exists("l", envir = rnest) || !identical(get("l", envir = rnest), l)) {
       answer <- tkmessageBox(
         title = "",
         default = "no",
-        message = get("tkmb11", envir = rnest),
+        message = list_lang$tkmb11,
         icon = "info",
         type = "yesno"
       )
@@ -742,12 +536,7 @@ tk.nesting.calendar <- function(
     color <- tclvalue(tkget(colo))
     if (prop == "" || color == "") {
       if (prop != "" || color != "") {
-        tkmessageBox(
-          title = "",
-          message = get("tkmb12", envir = rnest),
-          icon = "info",
-          type = "ok"
-        )
+        tk_info(list_lang$tkmb12)
       }
       prop <- c(0.000000000000, 0.01, 0.05, 0.10, 0.2, 0.4, 0.6, 0.8, 1)
       color <- c(
@@ -783,12 +572,7 @@ tk.nesting.calendar <- function(
     l <- getopt()
     leco <- l$ecodistrict
     if (identical(leco, "")) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb13", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb13)
       return()
     }
     if (l$uspgroup == "uallsp") {
@@ -796,21 +580,11 @@ tk.nesting.calendar <- function(
     }
     if (l$uspgroup == "uselectsp") {
       if (is.logical(l$sp)) {
-        tkmessageBox(
-          title = "",
-          message = get("tkmb14", envir = rnest),
-          icon = "info",
-          type = "ok"
-        )
+        tk_info(list_lang$tkmb14)
         return()
       }
       if (!any(l$sp %in% predictions$species_code)) {
-        tkmessageBox(
-          title = "",
-          message = get("tkmb15", envir = rnest),
-          icon = "info",
-          type = "ok"
-        )
+        tk_info(list_lang$tkmb15)
         return()
       }
       lgro <- lapply(l$sp, function(i) {
@@ -823,22 +597,12 @@ tk.nesting.calendar <- function(
     if (l$uspgroup == "ugroups") {
       lgro <- getgroups()
       if (is.null(lgro)) {
-        tkmessageBox(
-          title = "",
-          message = get("tkmb16", envir = rnest),
-          icon = "info",
-          type = "ok"
-        )
+        tk_info(list_lang$tkmb16)
         return()
       }
     }
     if (!any(predictions[, "ecodistrict"] %in% leco)) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb17", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb17)
       return()
     }
     cal <- data.frame(
@@ -887,21 +651,11 @@ tk.nesting.calendar <- function(
       }
     }
     if (ncol(cal) == 1) {
-      tkmessageBox(
-        title = "",
-        message = get("tkmb18", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$tkmb18)
       return()
     }
     if ((ncol(cal) - 1) > 50) {
-      tkmessageBox(
-        title = "",
-        message = paste0(get("tkmb19", envir = rnest), ncol(cal) - 1),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(paste0(list_lang$tkmb19, ncol(cal) - 1))
       return()
     }
     #names(cal)<-gsub("\\.","___",names(cal))
@@ -909,12 +663,7 @@ tk.nesting.calendar <- function(
     color <- tclvalue(tkget(colo))
     if (prop == "" || color == "") {
       if (prop != "" || color != "") {
-        tkmessageBox(
-          title = "",
-          message = get("tkmb20", envir = rnest),
-          icon = "info",
-          type = "ok"
-        )
+        tk_info(list_lang$tkmb20)
       }
       prop <- c(0.000000000000, 0.05, 0.1, 0.2, 0.4, 0.6, 0.8, 1)
       color <- c("white", brewer.pal(length(prop) - 3, "YlOrRd"), "darkred")
@@ -956,7 +705,7 @@ tk.nesting.calendar <- function(
   showshp <- function(info = "id") {
     l <- getopt()
     if (is.logical(l$layer)) {
-      stop(get("tkmb21", envir = rnest))
+      stop(list_lang$tkmb21)
     }
     fshp <- get("usershp", envir = rnest)
     #fshp<-readShapeSpatial(x)
@@ -964,7 +713,7 @@ tk.nesting.calendar <- function(
       cat(
         "\n",
         "\n",
-        paste(get("tkmb22", envir = rnest), x),
+        paste(list_lang$tkmb22, x),
         "\n",
         "\n",
         "\n"
@@ -975,7 +724,7 @@ tk.nesting.calendar <- function(
     if (info == "region") {
       l <- getopt()
       if (is.logical(l$id)) {
-        stop(get("tkmb23", envir = rnest))
+        stop(list_lang$tkmb23)
       }
       temp <- fshp@data[, l$id, drop = FALSE]
       temp <- apply(temp, 1, paste, collapse = "_")
@@ -1082,7 +831,7 @@ tk.nesting.calendar <- function(
       l <- getopt()
       if (l$zoom) {
         mtext(
-          get("tkmb24", envir = rnest),
+          list_lang$tkmb24,
           side = 1,
           outer = FALSE,
           font = 2,
@@ -1101,7 +850,7 @@ tk.nesting.calendar <- function(
         )
       }
       mtext(
-        get("tkmb25", envir = rnest),
+        list_lang$tkmb25,
         side = 1,
         outer = FALSE,
         font = 2,
@@ -1149,7 +898,7 @@ tk.nesting.calendar <- function(
     )
     clickregionbut <- tkbutton(
       ttt,
-      text = get("tkmb26", envir = rnest),
+      text = list_lang$tkmb26,
       pady = 0,
       width = 5,
       bg = "grey85",
@@ -1186,7 +935,7 @@ tk.nesting.calendar <- function(
     }
     if (l$zoom) {
       mtext(
-        get("tkmb24", envir = rnest),
+        list_lang$tkmb24,
         side = 1,
         outer = FALSE,
         font = 2,
@@ -1211,7 +960,7 @@ tk.nesting.calendar <- function(
     }
     if (l$int.choice) {
       mtext(
-        get("tkmb27", envir = rnest),
+        list_lang$tkmb27,
         side = 1,
         outer = FALSE,
         font = 2,
@@ -1240,7 +989,7 @@ tk.nesting.calendar <- function(
       polid <- NULL
       repeat {
         mtext(
-          get("tkmb28", envir = rnest),
+          list_lang$tkmb28,
           side = 1,
           outer = FALSE,
           font = 2,
@@ -1309,7 +1058,7 @@ tk.nesting.calendar <- function(
   shp <- tkentry(tt, width = 26, textvariable = tclVar(""))
   shpb <- tkbutton(
     tt,
-    text = get("shpblabl", envir = rnest),
+    text = list_lang$shpblabl,
     command = chooseshp,
     pady = 0,
     width = 11,
@@ -1321,23 +1070,18 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = paste0(
-          get("tkmb29", envir = rnest)[1],
-          getwd(),
-          get("tkmb29", envir = rnest)[2],
-          tclvalue(tkget(shp)),
-          get("tkmb29", envir = rnest)[3],
-          ifelse(
-            !is.null(get("usershp", envir = rnest)),
-            proj4string(get("usershp", envir = rnest)),
-            ""
-          )
-        ),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(paste0(
+        list_lang$tkmb29[1],
+        getwd(),
+        list_lang$tkmb29[2],
+        tclvalue(tkget(shp)),
+        list_lang$tkmb29[3],
+        ifelse(
+          !is.null(get("usershp", envir = rnest)),
+          proj4string(get("usershp", envir = rnest)),
+          ""
+        )
+      ))
     }
   )
 
@@ -1345,7 +1089,7 @@ tk.nesting.calendar <- function(
   id <- tkentry(tt, width = 26, textvariable = tclVar(""))
   idb <- tkbutton(
     tt,
-    text = get("idblabl", envir = rnest),
+    text = list_lang$idblabl,
     command = chooseid,
     pady = 0,
     width = 11,
@@ -1357,12 +1101,7 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = paste0(get("tkmb30", envir = rnest), tclvalue(tkget(id))),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(paste0(list_lang$tkmb30, tclvalue(tkget(id))))
     }
   )
 
@@ -1370,7 +1109,7 @@ tk.nesting.calendar <- function(
   region <- tkentry(tt, width = 26, textvariable = tclVar(""))
   regionb <- tkbutton(
     tt,
-    text = get("regionblabl", envir = rnest),
+    text = list_lang$regionblabl,
     command = chooseregion,
     pady = 0,
     width = 11,
@@ -1382,15 +1121,10 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = paste0(
-          get("tkmb31", envir = rnest),
-          tclvalue(tkget(region))
-        ),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(paste0(
+        list_lang$tkmb31,
+        tclvalue(tkget(region))
+      ))
     }
   )
 
@@ -1398,7 +1132,7 @@ tk.nesting.calendar <- function(
   species <- tkentry(tt, width = 26, textvariable = tclVar(""))
   speciesb <- tkbutton(
     tt,
-    text = get("speciesblabl", envir = rnest),
+    text = list_lang$speciesblabl,
     command = choosesp,
     pady = 0,
     width = 11,
@@ -1410,21 +1144,16 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = paste0(
-          get("tkmb32", envir = rnest),
-          tclvalue(tkget(species))
-        ),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(paste0(
+        list_lang$tkmb32,
+        tclvalue(tkget(species))
+      ))
     }
   )
 
   yearlab <- tkbutton(
     tt,
-    text = get("yearlabl", envir = rnest),
+    text = list_lang$yearlabl,
     pady = 0,
     width = 11,
     bg = "grey85"
@@ -1436,12 +1165,7 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = paste0(get("tkmb33", envir = rnest), tclvalue(tkget(year))),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(paste0(list_lang$tkmb33, tclvalue(tkget(year))))
     }
   )
 
@@ -1453,19 +1177,19 @@ tk.nesting.calendar <- function(
     spcal,
     variable = cal,
     value = "sp",
-    text = get("spcallabl", envir = rnest)
+    text = list_lang$spcallabl
   )
   tkconfigure(
     yearcal,
     variable = cal,
     value = "year",
-    text = get("yearcallabl", envir = rnest)
+    text = list_lang$yearcallabl
   )
   tkconfigure(
     regioncal,
     variable = cal,
     value = "region",
-    text = get("regioncallabl", envir = rnest)
+    text = list_lang$regioncallabl
   )
 
   ordercal <- tclVar("spgr")
@@ -1475,13 +1199,13 @@ tk.nesting.calendar <- function(
     orderspgrcal,
     variable = ordercal,
     value = "spgr",
-    text = get("orderspgrcallabl", envir = rnest)
+    text = list_lang$orderspgrcallabl
   )
   tkconfigure(
     orderecocal,
     variable = ordercal,
     value = "eco",
-    text = get("orderecocallabl", envir = rnest)
+    text = list_lang$orderecocallabl
   )
 
   nameback <- tkentry(tt, width = 12, textvariable = tclVar("estimates"))
@@ -1491,12 +1215,7 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("namebackqtext", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$namebackqtext)
     }
   )
   namerawcal <- tkentry(tt, width = 12, textvariable = tclVar("calendar"))
@@ -1506,12 +1225,7 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("namerawcalqtext", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$namerawcalqtext)
     }
   )
 
@@ -1522,7 +1236,7 @@ tk.nesting.calendar <- function(
 
   butcal <- tkbutton(
     tt,
-    text = get("butcallabl", envir = rnest),
+    text = list_lang$butcallabl,
     bg = "grey55",
     width = 27,
     command = function() {
@@ -1539,12 +1253,7 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("butcalqtext", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$butcalqtext)
     }
   )
 
@@ -1553,33 +1262,18 @@ tk.nesting.calendar <- function(
   dateend <- tkentry(tt, width = 7, textvariable = tclVar("09-30"))
 
   propfun <- function() {
-    tkmessageBox(
-      title = "",
-      message = paste0(get("tkmb34", envir = rnest), tclvalue(tkget(prop))),
-      icon = "info",
-      type = "ok"
-    )
+    tk_info(paste0(list_lang$tkmb34, tclvalue(tkget(prop))))
   }
   showcol <- function() {
-    tkmessageBox(
-      title = "",
-      message = paste0(get("tkmb35", envir = rnest), tclvalue(tkget(colo))),
-      icon = "info",
-      type = "ok"
-    )
+    tk_info(paste0(list_lang$tkmb35, tclvalue(tkget(colo))))
   }
   showpropcol <- function() {
-    tkmessageBox(
-      title = "",
-      message = paste0(get("tkmb36", envir = rnest)),
-      icon = "info",
-      type = "ok"
-    )
+    tk_info(paste0(list_lang$tkmb36))
   }
 
   propbut <- tkbutton(
     tt,
-    text = get("propbutlabl", envir = rnest),
+    text = list_lang$propbutlabl,
     width = 11,
     command = propfun,
     pady = 0,
@@ -1596,7 +1290,7 @@ tk.nesting.calendar <- function(
 
   colobut <- tkbutton(
     tt,
-    text = get("colobutlabl", envir = rnest),
+    text = list_lang$colobutlabl,
     width = 11,
     command = showcol,
     pady = 0,
@@ -1613,7 +1307,7 @@ tk.nesting.calendar <- function(
 
   showpropbut <- tkbutton(
     tt,
-    text = get("showpropbutlabl", envir = rnest),
+    text = list_lang$showpropbutlabl,
     width = 11,
     command = function() {},
     pady = 0,
@@ -1637,13 +1331,13 @@ tk.nesting.calendar <- function(
     usp,
     variable = spgr,
     value = "usp",
-    text = get("usplabl", envir = rnest)
+    text = list_lang$usplabl
   )
   tkconfigure(
     ugr,
     variable = spgr,
     value = "ugr",
-    text = get("ugrlabl", envir = rnest)
+    text = list_lang$ugrlabl
   )
   # predict mode
   uallsp <- tkradiobutton(tt)
@@ -1654,19 +1348,19 @@ tk.nesting.calendar <- function(
     uallsp,
     variable = uspgroup,
     value = "uallsp",
-    text = get("uallsplabl", envir = rnest)
+    text = list_lang$uallsplabl
   )
   tkconfigure(
     uselectsp,
     variable = uspgroup,
     value = "uselectsp",
-    text = get("uselectsplabl", envir = rnest)
+    text = list_lang$uselectsplabl
   )
   tkconfigure(
     ugroups,
     variable = uspgroup,
     value = "ugroups",
-    text = get("ugroupslabl", envir = rnest)
+    text = list_lang$ugroupslabl
   )
 
   #makegroup<-function(tt=tt,nn=n){
@@ -1694,7 +1388,7 @@ tk.nesting.calendar <- function(
   }
   tkgrid(listidlab, row = 3, rowspan = 32, column = 3)
   tkgrid(
-    tklabel(tt, text = get("tkmb37", envir = rnest)),
+    tklabel(tt, text = list_lang$tkmb37),
     row = 2,
     rowspan = 1,
     column = 4,
@@ -1711,80 +1405,12 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("groupqtext", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$groupqtext)
     }
   )
 
-  lgroups <- lgroups <- list(
-    bird_status = c("federal", "provincial"),
-    bird_type = c("landbirds", "waterbirds", "waterfowl", "shorebirds"),
-    habitat_type = c("forest", "open", "wetland"),
-    nest_location = c(
-      "ground",
-      "water",
-      "vegetation",
-      "cavity",
-      "man-made",
-      "cliff",
-      "colony"
-    ),
-    model_output = c("accepted", "rejected"),
-    bird_group = c(
-      "geese",
-      "swans",
-      "dabbling ducks",
-      "diving ducks",
-      "grouses and allies",
-      "loons and grebes",
-      "petrels and allies",
-      "cormorants",
-      "pelicans",
-      "herons and allies",
-      "hawks and allies",
-      "rails and cranes",
-      "shorebirds",
-      "gulls",
-      "terns",
-      "jaegers",
-      "auks and allies",
-      "doves and allies",
-      "cuckoos",
-      "owls and allies",
-      "nightjars",
-      "swallows and allies",
-      "hummingbirds",
-      "kingfishers",
-      "woodpeckers",
-      "flychatchers and allies",
-      "shrikes",
-      "vireos",
-      "corvids",
-      "pipits and allies",
-      "chickadees and allies",
-      "nuthatches and creepers",
-      "wrens and dipper",
-      "kinglets and allies",
-      "others",
-      "thrushes",
-      "thrashers and allies",
-      "urban birds",
-      "waxwings",
-      "longspurs",
-      "warblers",
-      "sparrows and allies",
-      "cardinals and allies",
-      "blackbirds and allies",
-      "finches",
-      "crossbills",
-      "redpolls"
-    )
-  )
-  lgroupsl <- get("lgroupsl", envir = rnest)
+  lgroups <- lapply(groups, function(x) x$labels)
+  lgroupsl <- list_lang$lgroupsl
 
   butmask <- function(
     n = 1,
@@ -2148,7 +1774,7 @@ tk.nesting.calendar <- function(
     tkgrid(
       tkbutton(
         tt,
-        text = get("uncheckall", envir = rnest),
+        text = list_lang$uncheckall,
         width = 12,
         bg = "grey85",
         command = local({
@@ -2311,7 +1937,7 @@ tk.nesting.calendar <- function(
   group1 <- tkentry(
     tt,
     width = 12,
-    textvariable = tclVar(get("group1labl", envir = rnest))
+    textvariable = tclVar(list_lang$group1labl)
   )
   groupscr1 <- tkscrollbar(tt, repeatinterval = 5, command = function(...) {
     tkyview(groupm1, ...)
@@ -2328,7 +1954,7 @@ tk.nesting.calendar <- function(
   )
   groupb1 <- tkbutton(
     tt,
-    text = get("groupb1labl", envir = rnest),
+    text = list_lang$groupb1labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2336,7 +1962,7 @@ tk.nesting.calendar <- function(
   )
   groupc1 <- tkbutton(
     tt,
-    text = get("groupc1labl", envir = rnest),
+    text = list_lang$groupc1labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2344,7 +1970,7 @@ tk.nesting.calendar <- function(
   )
   groupcall1 <- tkbutton(
     tt,
-    text = get("groupcall1labl", envir = rnest),
+    text = list_lang$groupcall1labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2352,7 +1978,7 @@ tk.nesting.calendar <- function(
   )
   groupsp1 <- tkbutton(
     tt,
-    text = get("groupsp1labl", envir = rnest),
+    text = list_lang$groupsp1labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2396,7 +2022,7 @@ tk.nesting.calendar <- function(
   group2 <- tkentry(
     tt,
     width = 12,
-    textvariable = tclVar(get("group2labl", envir = rnest))
+    textvariable = tclVar(list_lang$group2labl)
   )
   groupscr2 <- tkscrollbar(tt, repeatinterval = 5, command = function(...) {
     tkyview(groupm2, ...)
@@ -2413,7 +2039,7 @@ tk.nesting.calendar <- function(
   )
   groupb2 <- tkbutton(
     tt,
-    text = get("groupb2labl", envir = rnest),
+    text = list_lang$groupb2labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2421,7 +2047,7 @@ tk.nesting.calendar <- function(
   )
   groupc2 <- tkbutton(
     tt,
-    text = get("groupc2labl", envir = rnest),
+    text = list_lang$groupc2labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2429,7 +2055,7 @@ tk.nesting.calendar <- function(
   )
   groupcall2 <- tkbutton(
     tt,
-    text = get("groupcall2labl", envir = rnest),
+    text = list_lang$groupcall2labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2437,7 +2063,7 @@ tk.nesting.calendar <- function(
   )
   groupsp2 <- tkbutton(
     tt,
-    text = get("groupsp2labl", envir = rnest),
+    text = list_lang$groupsp2labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2481,7 +2107,7 @@ tk.nesting.calendar <- function(
   group3 <- tkentry(
     tt,
     width = 12,
-    textvariable = tclVar(get("group3labl", envir = rnest))
+    textvariable = tclVar(list_lang$group3labl)
   )
   groupscr3 <- tkscrollbar(tt, repeatinterval = 5, command = function(...) {
     tkyview(groupm3, ...)
@@ -2498,7 +2124,7 @@ tk.nesting.calendar <- function(
   )
   groupb3 <- tkbutton(
     tt,
-    text = get("groupb3labl", envir = rnest),
+    text = list_lang$groupb3labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2506,7 +2132,7 @@ tk.nesting.calendar <- function(
   )
   groupc3 <- tkbutton(
     tt,
-    text = get("groupc3labl", envir = rnest),
+    text = list_lang$groupc3labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2514,7 +2140,7 @@ tk.nesting.calendar <- function(
   )
   groupcall3 <- tkbutton(
     tt,
-    text = get("groupcall3labl", envir = rnest),
+    text = list_lang$groupcall3labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2522,7 +2148,7 @@ tk.nesting.calendar <- function(
   )
   groupsp3 <- tkbutton(
     tt,
-    text = get("groupsp3labl", envir = rnest),
+    text = list_lang$groupsp3labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2566,7 +2192,7 @@ tk.nesting.calendar <- function(
   group4 <- tkentry(
     tt,
     width = 12,
-    textvariable = tclVar(get("group4labl", envir = rnest))
+    textvariable = tclVar(list_lang$group4labl)
   )
   groupscr4 <- tkscrollbar(tt, repeatinterval = 5, command = function(...) {
     tkyview(groupm4, ...)
@@ -2583,7 +2209,7 @@ tk.nesting.calendar <- function(
   )
   groupb4 <- tkbutton(
     tt,
-    text = get("groupb4labl", envir = rnest),
+    text = list_lang$groupb4labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2591,7 +2217,7 @@ tk.nesting.calendar <- function(
   )
   groupc4 <- tkbutton(
     tt,
-    text = get("groupc4labl", envir = rnest),
+    text = list_lang$groupc4labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2599,7 +2225,7 @@ tk.nesting.calendar <- function(
   )
   groupcall4 <- tkbutton(
     tt,
-    text = get("groupcall4labl", envir = rnest),
+    text = list_lang$groupcall4labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2607,7 +2233,7 @@ tk.nesting.calendar <- function(
   )
   groupsp4 <- tkbutton(
     tt,
-    text = get("groupsp4labl", envir = rnest),
+    text = list_lang$groupsp4labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2651,7 +2277,7 @@ tk.nesting.calendar <- function(
   group5 <- tkentry(
     tt,
     width = 12,
-    textvariable = tclVar(get("group5labl", envir = rnest))
+    textvariable = tclVar(list_lang$group5labl)
   )
   groupscr5 <- tkscrollbar(tt, repeatinterval = 5, command = function(...) {
     tkyview(groupm5, ...)
@@ -2668,7 +2294,7 @@ tk.nesting.calendar <- function(
   )
   groupb5 <- tkbutton(
     tt,
-    text = get("groupb5labl", envir = rnest),
+    text = list_lang$groupb5labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2676,7 +2302,7 @@ tk.nesting.calendar <- function(
   )
   groupc5 <- tkbutton(
     tt,
-    text = get("groupc5labl", envir = rnest),
+    text = list_lang$groupc5labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2684,7 +2310,7 @@ tk.nesting.calendar <- function(
   )
   groupcall5 <- tkbutton(
     tt,
-    text = get("groupcall5labl", envir = rnest),
+    text = list_lang$groupcall5labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2692,7 +2318,7 @@ tk.nesting.calendar <- function(
   )
   groupsp5 <- tkbutton(
     tt,
-    text = get("groupsp5labl", envir = rnest),
+    text = list_lang$groupsp5labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2736,7 +2362,7 @@ tk.nesting.calendar <- function(
   group6 <- tkentry(
     tt,
     width = 12,
-    textvariable = tclVar(get("group6labl", envir = rnest))
+    textvariable = tclVar(list_lang$group6labl)
   )
   groupscr6 <- tkscrollbar(tt, repeatinterval = 5, command = function(...) {
     tkyview(groupm6, ...)
@@ -2753,7 +2379,7 @@ tk.nesting.calendar <- function(
   )
   groupb6 <- tkbutton(
     tt,
-    text = get("groupb6labl", envir = rnest),
+    text = list_lang$groupb6labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2761,7 +2387,7 @@ tk.nesting.calendar <- function(
   )
   groupc6 <- tkbutton(
     tt,
-    text = get("groupc6labl", envir = rnest),
+    text = list_lang$groupc6labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2769,7 +2395,7 @@ tk.nesting.calendar <- function(
   )
   groupcall6 <- tkbutton(
     tt,
-    text = get("groupcall6labl", envir = rnest),
+    text = list_lang$groupcall6labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2777,7 +2403,7 @@ tk.nesting.calendar <- function(
   )
   groupsp6 <- tkbutton(
     tt,
-    text = get("groupsp6labl", envir = rnest),
+    text = list_lang$groupsp6labl,
     width = 12,
     pady = 0,
     bg = "grey85",
@@ -2824,7 +2450,7 @@ tk.nesting.calendar <- function(
   tkconfigure(
     useprecalc,
     variable = useprecalcval,
-    text = get("useprecalclabl", envir = rnest)
+    text = list_lang$useprecalclabl
   )
 
   assign("path1", "", envir = rnest)
@@ -2834,11 +2460,11 @@ tk.nesting.calendar <- function(
 
   loaddata <- function() {
     tt <- tktoplevel()
-    tktitle(tt) <- get("loaddatalabl", envir = rnest)
-    lab1 <- tklabel(tt, text = get("lab1labl", envir = rnest))
-    lab2 <- tklabel(tt, text = get("lab2labl", envir = rnest))
-    lab3 <- tklabel(tt, text = get("lab3labl", envir = rnest))
-    lab4 <- tklabel(tt, text = get("lab4labl", envir = rnest))
+    tktitle(tt) <- list_lang$loaddatalabl
+    lab1 <- tklabel(tt, text = list_lang$lab1labl)
+    lab2 <- tklabel(tt, text = list_lang$lab2labl)
+    lab3 <- tklabel(tt, text = list_lang$lab3labl)
+    lab4 <- tklabel(tt, text = list_lang$lab4labl)
     ent1 <- tkentry(
       tt,
       width = 50,
@@ -2897,7 +2523,7 @@ tk.nesting.calendar <- function(
 
     but1 <- tkbutton(
       tt,
-      text = get("butbrowselabl", envir = rnest),
+      text = list_lang$butbrowselabl,
       pady = 0,
       width = 10,
       bg = "grey85",
@@ -2905,7 +2531,7 @@ tk.nesting.calendar <- function(
     )
     but2 <- tkbutton(
       tt,
-      text = get("butbrowselabl", envir = rnest),
+      text = list_lang$butbrowselabl,
       pady = 0,
       width = 10,
       bg = "grey85",
@@ -2913,7 +2539,7 @@ tk.nesting.calendar <- function(
     )
     but3 <- tkbutton(
       tt,
-      text = get("butbrowselabl", envir = rnest),
+      text = list_lang$butbrowselabl,
       pady = 0,
       width = 10,
       bg = "grey85",
@@ -2921,7 +2547,7 @@ tk.nesting.calendar <- function(
     )
     but4 <- tkbutton(
       tt,
-      text = get("butbrowselabl", envir = rnest),
+      text = list_lang$butbrowselabl,
       pady = 0,
       width = 10,
       bg = "grey85",
@@ -2953,13 +2579,13 @@ tk.nesting.calendar <- function(
   tkadd(
     topMenu,
     "cascade",
-    label = get("menufilelabl", envir = rnest),
+    label = list_lang$menufilelabl,
     menu = fileMenu
   )
   tkadd(
     fileMenu,
     "command",
-    label = get("menuloaddatalabl", envir = rnest),
+    label = list_lang$menuloaddatalabl,
     command = function() {
       print("Not implemented yet")
       loaddata()
@@ -2969,7 +2595,7 @@ tk.nesting.calendar <- function(
   tkadd(
     fileMenu,
     "command",
-    label = get("menuquitlabl", envir = rnest),
+    label = list_lang$menuquitlabl,
     command = function() tkdestroy(tt)
   )
 
@@ -2978,20 +2604,20 @@ tk.nesting.calendar <- function(
   tkadd(
     optionsMenu,
     "command",
-    label = get("menuretrolabl", envir = rnest),
+    label = list_lang$menuretrolabl,
     command = function() print("Not implemented yet")
   )
   testMenu <- tkmenu(topMenu, tearoff = FALSE)
   tkadd(
     topMenu,
     "cascade",
-    label = get("menutestlabl", envir = rnest),
+    label = list_lang$menutestlabl,
     menu = testMenu
   )
   tkadd(
     testMenu,
     "command",
-    label = get("menuranlabl", envir = rnest),
+    label = list_lang$menuranlabl,
     command = function() {
       tk.single.nest(list_lang = list_lang)
     }
@@ -2999,7 +2625,7 @@ tk.nesting.calendar <- function(
   tkadd(
     testMenu,
     "command",
-    label = get("menuficlabl", envir = rnest),
+    label = list_lang$menuficlabl,
     command = function() {
       tk.single.nest.test(
         dates = c("2000-05-01", "2000-05-30"),
@@ -3014,7 +2640,7 @@ tk.nesting.calendar <- function(
   ecodistrict <- tkentry(tt, width = 25, textvariable = tclVar(""))
   ecodistrictb <- tkbutton(
     tt,
-    text = get("ecodistrictblabl", envir = rnest),
+    text = list_lang$ecodistrictblabl,
     command = chooseecodistrict,
     pady = 0,
     width = 11,
@@ -3026,17 +2652,12 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = paste(
-          get("tkmb41", envir = rnest),
-          "{ ",
-          tclvalue(tkget(ecodistrict)),
-          " }"
-        ),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(paste(
+        list_lang$tkmb41,
+        "{ ",
+        tclvalue(tkget(ecodistrict)),
+        " }"
+      ))
     }
   )
 
@@ -3044,10 +2665,10 @@ tk.nesting.calendar <- function(
   tkgrid(tklabel(tt, text = "   "), column = 7, row = 0)
   tkgrid(tklabel(tt, text = "       "), column = n + 8 + 1, row = 0)
 
-  header4 <- tklabel(tt, text = get("header4labl", envir = rnest))
+  header4 <- tklabel(tt, text = list_lang$header4labl)
   tkconfigure(header4, foreground = "blue")
   tkgrid(header4, row = 1, column = 9, columnspan = n * 2, sticky = "we")
-  grouplab <- tklabel(tt, text = get("grouplabl", envir = rnest))
+  grouplab <- tklabel(tt, text = list_lang$grouplabl)
   #tkgrid(grouplab,row=2,column=9,sticky="nw")
 
   fontmode <- tkfont.create(size = 14, weight = "bold")
@@ -3175,7 +2796,7 @@ tk.nesting.calendar <- function(
 
   butpred <- tkbutton(
     tt,
-    text = get("butpredlabl", envir = rnest),
+    text = list_lang$butpredlabl,
     bg = "grey55",
     width = 115,
     bg = "lightblue",
@@ -3191,7 +2812,7 @@ tk.nesting.calendar <- function(
   )
   butobs <- tkbutton(
     tt,
-    text = get("butobslabl", envir = rnest),
+    text = list_lang$butobslabl,
     bg = "grey55",
     width = 115,
     bg = "lightgreen",
@@ -3208,7 +2829,7 @@ tk.nesting.calendar <- function(
 
   butrun <- tkbutton(
     tt,
-    text = get("butrunlabl", envir = rnest),
+    text = list_lang$butrunlabl,
     bg = "grey55",
     width = 27,
     command = run
@@ -3219,17 +2840,12 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("butrunqtext", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$butrunqtext)
     }
   )
   butmap <- tkbutton(
     tt,
-    text = get("butmaplabl", envir = rnest),
+    text = list_lang$butmaplabl,
     bg = "grey55",
     width = 27,
     command = mapnest
@@ -3240,17 +2856,12 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("butmapqtext", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$butmapqtext)
     }
   )
   buteco <- tkbutton(
     tt,
-    text = get("butecolabl", envir = rnest),
+    text = list_lang$butecolabl,
     bg = "grey55",
     width = 27,
     command = mapeco
@@ -3261,17 +2872,12 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("butecoqtext", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$butecoqtext)
     }
   )
   butsp <- tkbutton(
     tt,
-    text = get("butsplabl", envir = rnest),
+    text = list_lang$butsplabl,
     bg = "grey55",
     width = 27,
     command = mapsp
@@ -3282,12 +2888,7 @@ tk.nesting.calendar <- function(
     pady = 0,
     bg = "grey85",
     command = function() {
-      tkmessageBox(
-        title = "",
-        message = get("butspqtext", envir = rnest),
-        icon = "info",
-        type = "ok"
-      )
+      tk_info(list_lang$butspqtext)
     }
   )
 
@@ -3313,22 +2914,15 @@ tk.nesting.calendar <- function(
 tk.single.nest <- function(list_lang) {
   tclServiceMode(FALSE)
 
-  list_lang <- list_lang
-  rnest <- new.env()
-  assign("list_lang", list_lang, envir = rnest)
-  for (i in seq_along(list_lang)) {
-    assign(names(list_lang)[i], list_lang[[i]], envir = rnest)
-  }
-
   tt <- tktoplevel()
-  tktitle(tt) <- get("titlesnlabl", envir = rnest)
-  header1 <- tklabel(tt, text = get("header1snlabl", envir = rnest))
+  tktitle(tt) <- list_lang$titlesnlabl
+  header1 <- tklabel(tt, text = list_lang$header1snlabl)
   tkconfigure(header1, foreground = "blue")
-  header2 <- tklabel(tt, text = get("header2snlabl", envir = rnest))
-  header22 <- tklabel(tt, text = get("header22snlabl", envir = rnest))
-  titre1 <- tklabel(tt, text = get("titre1snlabl", envir = rnest))
-  titre2 <- tklabel(tt, text = get("titre2snlabl", envir = rnest))
-  titre3 <- tklabel(tt, text = get("titre3snlabl", envir = rnest))
+  header2 <- tklabel(tt, text = list_lang$header2snlabl)
+  header22 <- tklabel(tt, text = list_lang$header22snlabl)
+  titre1 <- tklabel(tt, text = list_lang$titre1snlabl)
+  titre2 <- tklabel(tt, text = list_lang$titre2snlabl)
+  titre3 <- tklabel(tt, text = list_lang$titre3snlabl)
   valeur1 <- tkentry(tt, width = 10, textvariable = tclVar(""))
   valeur2 <- tkentry(tt, width = 10, textvariable = tclVar(""))
   valeur3 <- tkentry(tt, width = 10, textvariable = tclVar(""))
@@ -3353,7 +2947,7 @@ tk.single.nest <- function(list_lang) {
   but2 <- function() {
     x <- tclvalue(tkget(valeur2))
     if (!any(d$species_code == x)) {
-      stop(get("tkmb39", envir = rnest))
+      stop(list_lang$tkmb39)
     }
     y <- d[d$nest_id == sample(unique(d$nest_id[d$species_code == x]), 1), ]
     ans <- chronology(y, test = T)
@@ -3371,7 +2965,7 @@ tk.single.nest <- function(list_lang) {
   but3 <- function() {
     x <- tclvalue(tkget(valeur3))
     if (!any(d$nest_id == x)) {
-      stop(get("tkmb40", envir = rnest))
+      stop(list_lang$tkmb40)
     }
     y <- d[d$nest_id == x, ]
     ans <- chronology(y, test = T)
@@ -3386,12 +2980,12 @@ tk.single.nest <- function(list_lang) {
       print(y)
     }
   }
-  bouton1 <- tkbutton(tt, text = get("bouton", envir = rnest), command = but1)
-  bouton2 <- tkbutton(tt, text = get("bouton", envir = rnest), command = but2)
-  bouton3 <- tkbutton(tt, text = get("bouton", envir = rnest), command = but3)
+  bouton1 <- tkbutton(tt, text = list_lang$bouton, command = but1)
+  bouton2 <- tkbutton(tt, text = list_lang$bouton, command = but2)
+  bouton3 <- tkbutton(tt, text = list_lang$bouton, command = but3)
   boutonc <- tkbutton(
     tt,
-    text = get("boutonc", envir = rnest),
+    text = list_lang$boutonc,
     command = function() {
       tkdestroy(tt)
     }
@@ -3425,31 +3019,24 @@ tk.single.nest.test <- function(
 ) {
   tclServiceMode(FALSE)
 
-  list_lang <- list_lang
-  rnest <- new.env()
-  assign("list_lang", list_lang, envir = rnest)
-  for (i in seq_along(list_lang)) {
-    assign(names(list_lang)[i], list_lang[[i]], envir = rnest)
-  }
-
   tt <- tktoplevel()
-  tktitle(tt) <- get("titlesntlabl", envir = rnest)
-  deslab <- tklabel(tt, text = get("deslabl", envir = rnest))
+  tktitle(tt) <- list_lang$titlesntlabl
+  deslab <- tklabel(tt, text = list_lang$deslabl)
   tkconfigure(deslab, foreground = "blue")
-  incublab <- tklabel(tt, text = get("incublabl", envir = rnest))
-  rearlab <- tklabel(tt, text = get("rearlabl", envir = rnest))
-  laylab <- tklabel(tt, text = get("laylabl", envir = rnest))
-  beglab <- tklabel(tt, text = get("beglabl", envir = rnest))
-  clutchlab <- tklabel(tt, text = get("clutchlabl", envir = rnest))
-  clutchminlab <- tklabel(tt, text = get("clutchminlabl", envir = rnest))
-  clutchmaxlab <- tklabel(tt, text = get("clutchmaxlabl", envir = rnest))
+  incublab <- tklabel(tt, text = list_lang$incublabl)
+  rearlab <- tklabel(tt, text = list_lang$rearlabl)
+  laylab <- tklabel(tt, text = list_lang$laylabl)
+  beglab <- tklabel(tt, text = list_lang$beglabl)
+  clutchlab <- tklabel(tt, text = list_lang$clutchlabl)
+  clutchminlab <- tklabel(tt, text = list_lang$clutchminlabl)
+  clutchmaxlab <- tklabel(tt, text = list_lang$clutchmaxlabl)
 
   useminclutchlab <- tklabel(
     tt,
-    text = get("useminclutchlabl", envir = rnest)
+    text = list_lang$useminclutchlabl
   )
-  incflexplab <- tklabel(tt, text = get("incflexplabl", envir = rnest))
-  incflexmlab <- tklabel(tt, text = get("incflexmlabl", envir = rnest))
+  incflexplab <- tklabel(tt, text = list_lang$incflexplabl)
+  incflexmlab <- tklabel(tt, text = list_lang$incflexmlabl)
 
   incub <- tkentry(tt, width = 5, textvariable = tclVar("10"))
   rear <- tkentry(tt, width = 5, textvariable = tclVar("12"))
@@ -3464,14 +3051,14 @@ tk.single.nest.test <- function(
   incflexm <- tkentry(tt, width = 5, textvariable = tclVar(""))
 
   date <- tklabel(tt, text = "dates")
-  eggs <- tklabel(tt, text = get("eggslabl", envir = rnest))
-  young <- tklabel(tt, text = get("younglabl", envir = rnest))
+  eggs <- tklabel(tt, text = list_lang$eggslabl)
+  young <- tklabel(tt, text = list_lang$younglabl)
   codes <- tklabel(tt, text = "codes")
   separator <- "============================================================================"
   dateini <- as.Date(dates[1])
   n <- as.numeric(abs(difftime(as.Date(dates[2]), dateini))) + 1
   if (n < 10) {
-    stop(get("period10labl", envir = rnest))
+    stop(list_lang$period10labl)
   }
   for (i in 1:n) {
     datetemp <- as.character(dateini + i - 1)
@@ -3586,23 +3173,23 @@ tk.single.nest.test <- function(
   }
   chdate <- function() {
     ttt <- tktoplevel()
-    chdatelab1 <- tklabel(ttt, text = get("chdatelab1labl", envir = rnest))
-    chdatelab2 <- tklabel(ttt, text = get("chdatelab2labl", envir = rnest))
+    chdatelab1 <- tklabel(ttt, text = list_lang$chdatelab1labl)
+    chdatelab2 <- tklabel(ttt, text = list_lang$chdatelab2labl)
     chdate1 <- tkentry(ttt, width = 10, textvariable = tclVar(""))
     chdate2 <- tkentry(ttt, width = 10, textvariable = tclVar(""))
     newin <- function() {
       d1 <- tclvalue(tkget(chdate1))
       d2 <- tclvalue(tkget(chdate2))
       if ((abs(as.numeric(difftime(as.Date(d1), as.Date(d2)))) + 1) < 14) {
-        stop(get("newinlabl", envir = rnest))
+        stop(list_lang$newinlabl)
       }
       tkdestroy(tt)
       tkdestroy(ttt)
-      tk.single.nest.test(dates = c(d1, d2))
+      tk.single.nest.test(dates = c(d1, d2), list_lang = list_lang)
     }
     refresh <- tkbutton(
       ttt,
-      text = get("refreshlabl", envir = rnest),
+      text = list_lang$refreshlabl,
       command = newin
     )
     tkpack(chdatelab1, chdate1)
@@ -3666,17 +3253,17 @@ tk.single.nest.test <- function(
 
   bouton1 <- tkbutton(
     tt,
-    text = get("bouton1sntlabl", envir = rnest),
+    text = list_lang$bouton1sntlabl,
     command = ff
   )
   bouton3 <- tkbutton(
     tt,
-    text = get("bouton3sntlabl", envir = rnest),
+    text = list_lang$bouton3sntlabl,
     command = writebug
   )
   bouton2 <- tkbutton(
     tt,
-    text = get("bouton2sntlabl", envir = rnest),
+    text = list_lang$bouton2sntlabl,
     command = chdate
   )
   tkgrid(tklabel(tt, text = ""), row = 0, columnspan = 100)
@@ -3718,4 +3305,17 @@ tk.single.nest.test <- function(
 
 cat_brs <- function(n = 1) {
   cat(rep("\n", n))
+}
+
+
+# Shows an information message box.
+tk_info <- function(message) {
+  tkmessageBox(title = "", message = message, icon = "info", type = "ok")
+}
+
+
+# Reads the species groupings offered in the interface.
+species_groups <- function() {
+  file <- system.file("extdata", "species_groups.yml", package = "rNest")
+  lapply(yaml::yaml.load_file(file), function(x) lapply(x, unlist))
 }

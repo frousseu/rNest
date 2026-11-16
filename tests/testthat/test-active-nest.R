@@ -11,8 +11,13 @@ test_that("active.nest() gives the same dates as the precalculated data", {
 })
 
 test_that("active.nest() filters by species and year", {
-  ans <- active.nest(nw, sp = "AMRO", year = 1999, nparam = np,
-    progress = FALSE)
+  ans <- active.nest(
+    nw,
+    sp = "AMRO",
+    year = 1999,
+    nparam = np,
+    progress = FALSE
+  )
   expect_equal(unique(ans$sp), "AMRO")
   expect_equal(format(ans$initiation, "%Y"), "1999")
 })

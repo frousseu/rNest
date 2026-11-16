@@ -20,9 +20,10 @@ test_that("hatching() detects an increase after a non-negative start", {
 
 test_that("sub_list() maps codes to their group name", {
   l <- list(nest = c("NN", "AN"), hatch = "HY")
-  expect_equal(rNest:::sub_list(c("AN", "HY", "XX"), l),
-    c("nest", "hatch", NA))
+  expect_equal(rNest:::sub_list(c("AN", "HY", "XX"), l), c("nest", "hatch", NA))
   expect_error(rNest:::sub_list("AN", list("AN")), "Not a named list")
-  expect_error(rNest:::sub_list("AN", list(a = "AN", b = "AN")),
-    "more than once")
+  expect_error(
+    rNest:::sub_list("AN", list(a = "AN", b = "AN")),
+    "more than once"
+  )
 })
