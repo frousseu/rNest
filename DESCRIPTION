@@ -1,8 +1,8 @@
 Package: rNest
 Type: Package
 Title: Estimating Nesting Chronology and Breeding Phenology in Birds
-Version: 0.2.1.9000
-Date: 2026-10-28
+Version: 0.2.2
+Date: 2026-11-16
 Author: Francois Rousseu, Bruno Drolet
 Maintainer: Francois Rousseu <francoisrousseu@hotmail.com>
 Depends: tcltk, svMisc, splancs, mapdata, rgdal, maptools, data.table, sp, rgeos, plyr, RColorBrewer
