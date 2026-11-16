@@ -187,8 +187,14 @@ nesting.calendar <- function(
     dates <- ifelse(dates %in% c("05", "10", "15", "20", "25"), dates, "")
     mo <- substr(d$date[i], 4, 5) == "01" || i %in% c(2, x)
     if (mo) {
-      lines(c(i - 1, i - 1), c(y, y + upbox), col = "black", lwd = 2, xpd = T)
-      lines(c(i - 1, i - 1), c(1, y), col = "black", lwd = 2, xpd = T)
+      lines(
+        c(i - 1, i - 1),
+        c(y, y + upbox),
+        col = "black",
+        lwd = 2,
+        xpd = TRUE
+      )
+      lines(c(i - 1, i - 1), c(1, y), col = "black", lwd = 2, xpd = TRUE)
     }
   }
   m <- unique(substr(d$date, 1, 2))

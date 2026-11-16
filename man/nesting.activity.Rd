@@ -12,7 +12,7 @@ nesting.activity(dat, dates = F, groups = F, by = "sp", n = T, chronology = F, .
 \arguments{
   \item{dat}{
 A \code{\link{data.frame}} containing observations for one or several nests or the output of the \code{\link{active.nest}} function with
-column names : nest_id, species_code, date, eggs, young and optionally status_code, longitude and latitude.
+column namesÂ : nest_id, species_code, date, eggs, young and optionally status_code, longitude and latitude.
 }
   \item{dates}{
 Restricts the range of dates for which the nesting activity is calculated. A \code{vector} of length 2 with the dates given as
@@ -21,7 +21,7 @@ a character string of the in the mm-dd format (ex: \code{dates = c("04-01","09-0
   \item{groups}{
 Used to compute the nesting phenology for different group of species based on habitat, phylogeny, feeding guild, etc.
 A named \code{list} of character vectors with the species code and the group ids as names (ex: \code{list(warblers = c("COYE", "YWAR"),
-hawks = c("BAEA" , "GOEA"))}). Species that are not part of a group will be returned as usual. If a species is part of more
+hawks = c("BAEA"Â ,Â "GOEA"))}). Species that are not part of a group will be returned as usual. If a species is part of more
 than one group, an error message will be returned.
 }
   \item{by}{

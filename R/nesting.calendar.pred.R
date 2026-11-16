@@ -138,7 +138,7 @@ nesting.calendar.pred <- function(
       paste(names(d)[i], "  (", d[1, i], ") ", sep = ""),
       adj = c(0.5, 0.4),
       cex = 0.8,
-      xpd = TRUERUE,
+      xpd = TRUE,
       font = 2
     )
   }

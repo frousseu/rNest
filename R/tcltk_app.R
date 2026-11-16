@@ -476,7 +476,6 @@ tk.nesting.calendar <- function(
     text = list_lang$ugroupslabl
   )
 
-
   ll <- sg$Species_ID[sg$Species_ID %in% unique(d$species_code)]
 
   scr <- tkscrollbar(tt, repeatinterval = 5, command = function(...) {
@@ -1576,7 +1575,7 @@ app_mapnest <- function(app) {
   coordinates(xx) <- cbind(xx$lon, xx$lat, stringsAsFactors = FALSE)
   slot(pol, "data") <- data.frame(
     reg = apply(
-      slot(pol, "data")[, l$id, drop = F],
+      slot(pol, "data")[, l$id, drop = FALSE],
       1,
       paste,
       collapse = "_"
@@ -1631,7 +1630,7 @@ app_mapeco <- function(app) {
       gray(0.9),
       "lightgoldenrod"
     ),
-    add = TRUERUE
+    add = TRUE
   )
   coo <- coordinates(app$ecodistricts[w, ])
   text(
@@ -2076,7 +2075,7 @@ app_chooseregion <- function(app) {
         polid <- c(polid, w)
         couleur <- "lightgoldenrod"
       }
-      plot(ll$shape[w, ], add = T, col = couleur)
+      plot(ll$shape[w, ], add = TRUE, col = couleur)
     }
     polid <- sort(unique(polid))
     x <- paste(unique(ll$region[polid]), collapse = ",")
@@ -2138,7 +2137,7 @@ app_chooseecodistrict <- function(app) {
       font = 2,
       cex = 1.1
     )
-    pol <- getpoly(quiet = T)
+    pol <- getpoly(quiet = TRUE)
     pol <- SpatialPolygons(
       list(Polygons(list(Polygon(pol[c(1:nrow(pol), 1), ])), ID = 1)),
       proj4string = CRS(proj4string(app$ecodistricts))
@@ -2163,7 +2162,7 @@ app_chooseecodistrict <- function(app) {
       font = 2,
       cex = 1.1
     )
-    pol <- getpoly(quiet = T)
+    pol <- getpoly(quiet = TRUE)
     polygon(pol, lwd = 4, border = "darkgreen")
     pol <- SpatialPolygons(
       list(Polygons(list(Polygon(pol[c(1:nrow(pol), 1), ])), ID = 1)),
@@ -2174,7 +2173,7 @@ app_chooseecodistrict <- function(app) {
     if (exists("fshp")) {
       plot(fshp, add = TRUE)
     }
-    plot(pol, lwd = 4, border = "darkgreen", add = TRUERUE)
+    plot(pol, lwd = 4, border = "darkgreen", add = TRUE)
     x <- paste(
       sort(unique(app$ecodistricts$ecodistrict[o[[1]]])),
       collapse = ","
@@ -2931,7 +2930,7 @@ tk.single.nest <- function(list_lang) {
       stop(list_lang$tkmb39)
     }
     y <- d[d$nest_id == sample(unique(d$nest_id[d$species_code == x]), 1), ]
-    ans <- chronology(y, test = T)
+    ans <- chronology(y, test = TRUE)
     temp <- tclvalue(tkget(name1))
     if (temp != "") {
       assign(temp, ans, envir = .GlobalEnv)
@@ -2949,7 +2948,7 @@ tk.single.nest <- function(list_lang) {
       stop(list_lang$tkmb40)
     }
     y <- d[d$nest_id == x, ]
-    ans <- chronology(y, test = T)
+    ans <- chronology(y, test = TRUE)
     temp <- tclvalue(tkget(name1))
     if (temp != "") {
       assign(temp, ans, envir = .GlobalEnv)

@@ -39,8 +39,7 @@ active.nest <- function(
       len_active,
       span_error
     )
-  ) #add-on to subet years, has to be modified it is temporary for bruno
-  #d<-d[,c("nest_id","species_code","lat","lon","status_code","visit_id","date","eggs","young","stage_code")]
+  )
   if (is.character(sp)) {
     d <- d[d$species_code %in% sp, ]
   }
@@ -71,7 +70,7 @@ active.nest <- function(
       }
       warning(
         paste(msg$species_not_found, sp[is.na(m)]),
-        call. = T,
+        call. = TRUE,
         immediate. = TRUE
       )
     }
@@ -119,7 +118,7 @@ active.nest <- function(
       }
       warning(
         paste(msg$species_not_found_years, sp[is.na(m)]),
-        call. = T,
+        call. = TRUE,
         immediate. = TRUE
       )
     }
@@ -338,7 +337,7 @@ active.nest <- function(
         par(mar = c(2, 0, 0, 0))
         map(
           'worldHires',
-          fill = T,
+          fill = TRUE,
           bg = "cyan",
           col = "lightgoldenrod",
           xpd = FALSE
@@ -350,7 +349,7 @@ active.nest <- function(
           'worldHires',
           ylim = range(ran$y),
           xlim = range(ran$x),
-          fill = T,
+          fill = TRUE,
           bg = "cyan",
           col = "lightgoldenrod",
           xpd = FALSE
@@ -363,7 +362,7 @@ active.nest <- function(
           cex = 1.1
         )
         points(d$lon, d$lat, pch = 16, col = "red", cex = 0.6)
-        pol <- getpoly(quiet = T)
+        pol <- getpoly(quiet = TRUE)
         polygon(pol, lwd = 4, border = "darkgreen")
       } else {
         # maybe here the region should be subsetted according to shapefile, region AND selection?
@@ -386,7 +385,7 @@ active.nest <- function(
             cex = 1.1
           )
           points(d$lon, d$lat, pch = 16, col = "red", cex = 0.6)
-          pol <- getpoly(quiet = T)
+          pol <- getpoly(quiet = TRUE)
           pol <- SpatialPolygons(
             list(Polygons(list(Polygon(pol[c(1:nrow(pol), 1), ])), ID = 1)),
             proj4string = CRS(proj4string(layer))
@@ -405,7 +404,7 @@ active.nest <- function(
           cex = 1.1
         )
         points(d$lon, d$lat, pch = 16, col = "red", cex = 0.6)
-        pol <- getpoly(quiet = T)
+        pol <- getpoly(quiet = TRUE)
         polygon(pol, lwd = 4, border = "darkgreen")
       }
       int <- inout(cbind(x = d$lon, y = d$lat), pol)

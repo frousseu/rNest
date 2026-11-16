@@ -9,7 +9,7 @@ chronology(dat, details = FALSE, nparam = NULL, test = FALSE, minclutch = TRUE, 
 }
 \arguments{
   \item{dat}{
-A \code{\link{data.frame}} containing observations for a single nest with column names : nest_id, species_code,
+A \code{\link{data.frame}} containing observations for a single nest with column namesÂ : nest_id, species_code,
 date, eggs, young and optionally status_code.
 }
   \item{details}{
@@ -17,7 +17,7 @@ Modifies the output of the function to give either the range of dates for which 
 with the nesting stages on different dates as names. When set to \code{TRUE}, gives the complete nesting sequence.
 }
   \item{nparam}{
-A \code{\link{data.frame}} containing nesting parameters for the species with column names : species_code, cmin,
+A \code{\link{data.frame}} containing nesting parameters for the species with column namesÂ : species_code, cmin,
 cmax, clutch, laying, start, incub and rearing.
 }
   \item{test}{

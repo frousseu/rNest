@@ -132,7 +132,6 @@ chronology <- function(
     }
   }
 
-  #save only higher order observations
   ordre <- c("nest", "active", "eggs", "young", "hatch", "fledge")
   order_stage <- match(dat$stage_code, ordre)
   dat <- cbind(dat, order_stage, stringsAsFactors = FALSE)
@@ -218,18 +217,14 @@ chronology <- function(
   }
   if (dat$start[1] < 998) {
     egg_start <- min(dat$start[1], prog)
-  } #edit pour une BANO avec 1 de prog
-  #if(dat$start[1]==999){egg_start<-max(ifelse(dat$eggs==(-1),1,dat$eggs)+ifelse(dat$young==(-1),1,dat$young),na.rm=T)}
-  #if(dat$start[1]==998){egg_start<-max(ifelse(dat$eggs==(-1),1,dat$eggs)+ifelse(dat$young==(-1),1,dat$young),na.rm=T)-1}
-  #if(dat$start[1]<998){egg_start<-dat$start[1]}
+  }
+
   egg_start <- ifelse(egg_start <= 0, 1, egg_start)
   dat <- data.frame(
     dat,
     egg_start = rep(egg_start, nrow(dat)),
     stringsAsFactors = FALSE
   )
-  #if more than one visit in the same day, program here to keep the latest (or something else)
-  #maximum number of progeny
 
   lay <- (dat$egg_start[1] - 1) * dat$laying[1]
   inc <- dat$incub[1]
