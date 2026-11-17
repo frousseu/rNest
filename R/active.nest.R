@@ -426,10 +426,9 @@ active.nest <- function(
     }
     if (int.choice) {
       if (is.logical(layer)) {
-        data(worldHiresMapEnv, package = "mapdata")
         par(mar = c(2, 0, 0, 0))
         map(
-          'worldHires',
+          "mapdata::worldHires",
           fill = TRUE,
           bg = "cyan",
           col = "lightgoldenrod",
@@ -439,7 +438,7 @@ active.nest <- function(
         ran <- locator(4)
         par(mar = c(2, 0, 0, 0))
         map(
-          'worldHires',
+          "mapdata::worldHires",
           ylim = range(ran$y),
           xlim = range(ran$x),
           fill = TRUE,

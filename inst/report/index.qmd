@@ -53,8 +53,12 @@ The objective of this project is to develop an updated, scientifically defensibl
 > It provides species-specific predictions of the nesting phenology of 311 bird species (71 % of those breeding in Canada), outlining the timing and intensity of nesting. The use of a standardized method applied to all regions enables predictions to be made for boreal and Arctic regions.
 
 
-``
->
+
+
+> Although, basic biological information is available in the scientific literature for certain species or regions, it is not available for the whole of Canada in a common format.
+
+
+Backcalculation algorithm developed wir dR
 
 
 # Database
