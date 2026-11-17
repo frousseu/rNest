@@ -144,10 +144,18 @@ tk.nesting.calendar <- function(
   sg <- sg2
   rm(grp)
 
-  tclServiceMode(FALSE)
+  old_mode <- tclServiceMode(FALSE)
+  on.exit(tclServiceMode(old_mode), add = TRUE)
   tt <- tktoplevel()
-  tkwm.geometry(tt, "950x600")
-  tcl("wm", "attributes", tt, topmost = TRUE)
+  # no fixed geometry: let Tk size the window from its content (fonts scale
+  # with the screen DPI), but never larger than the screen
+  tcl(
+    "wm",
+    "maxsize",
+    tt,
+    tclvalue(tcl("winfo", "screenwidth", tt)),
+    tclvalue(tcl("winfo", "screenheight", tt))
+  )
   for (i in 0:36) {
     tkgrid.rowconfigure(tt, i, weight = 1, minsize = 12)
   }
@@ -570,10 +578,10 @@ tk.nesting.calendar <- function(
           r <- pos
           s <- length(lgroups[[i]])
           function() {
-            tclServiceMode(FALSE)
+            old_mode <- tclServiceMode(FALSE)
+            on.exit(tclServiceMode(old_mode), add = TRUE)
             app_butmask(app, i, r, s, predict = get("predict", envir = rnest))
             app_relistsp(app, sg, lgroups)
-            tclServiceMode(TRUE)
           }
         })
       ),
@@ -643,10 +651,10 @@ tk.nesting.calendar <- function(
         command = local({
           i <- i
           function() {
-            tclServiceMode(FALSE)
+            old_mode <- tclServiceMode(FALSE)
+            on.exit(tclServiceMode(old_mode), add = TRUE)
             app_butmaskgroups(app, i)
             app_relistsp(app, sg, lgroups)
-            tclServiceMode(TRUE)
           }
         })
       ),
@@ -666,10 +674,10 @@ tk.nesting.calendar <- function(
         command = local({
           i <- i
           function() {
-            tclServiceMode(FALSE)
+            old_mode <- tclServiceMode(FALSE)
+            on.exit(tclServiceMode(old_mode), add = TRUE)
             app_butmaskgroups(app, i, val = "0")
             app_relistsp(app, sg, lgroups)
-            tclServiceMode(TRUE)
           }
         })
       ),
@@ -1351,32 +1359,30 @@ tk.nesting.calendar <- function(
     tt,
     text = list_lang$butpredlabl,
     bg = "grey55",
-    width = 115,
     bg = "lightblue",
     fg = "red",
     font = fontmode,
     command = function() {
-      tclServiceMode(FALSE)
+      old_mode <- tclServiceMode(FALSE)
+      on.exit(tclServiceMode(old_mode), add = TRUE)
       app_widget(app, predict = FALSE)
       app_rejected(app, fromobsbut = FALSE)
       app_relistsp(app, sg, lgroups)
-      tclServiceMode(TRUE)
     }
   )
   butobs <- tkbutton(
     tt,
     text = list_lang$butobslabl,
     bg = "grey55",
-    width = 115,
     bg = "lightgreen",
     fg = "red",
     font = fontmode,
     command = function() {
-      tclServiceMode(FALSE)
+      old_mode <- tclServiceMode(FALSE)
+      on.exit(tclServiceMode(old_mode), add = TRUE)
       app_widget(app, predict = TRUE)
       app_rejected(app, fromobsbut = TRUE)
       app_relistsp(app, sg, lgroups)
-      tclServiceMode(TRUE)
     }
   )
 
@@ -1460,7 +1466,6 @@ tk.nesting.calendar <- function(
       }
     }
   }
-  tclServiceMode(TRUE)
   invisible(app)
 }
 
@@ -1963,15 +1968,16 @@ app_showshp <- function(app, info = "id") {
 app_chooseshp <- function(app) {
   tkconfigure(app$tt, cursor = "watch")
   on.exit(tkconfigure(app$tt, cursor = "arrow"))
-  tcl("wm", "attributes", app$tt, topmost = FALSE)
-  x <- gsub("\\\\", "/", file.choose())
+  x <- choose_file(filters = matrix(c("Shapefile", ".shp"), ncol = 2))
+  if (is.null(x)) {
+    return(invisible())
+  }
   tkconfigure(app$shp, textvariable = tclVar(x))
   tkgrid(app$shp, row = 10, column = 1, sticky = "w") #adjust with final location row=5
   l <- app_getopt(app) # to load the shapefile and bring modifications to rnest envir
   #arg<-breakshapepath(x)
   #usershp<-readOGR(dsn=arg[1],layer=arg[2])
   #assign("usershp",usershp,envir=rnest)
-  tcl("wm", "attributes", app$tt, topmost = TRUE)
 }
 
 
@@ -1987,7 +1993,7 @@ app_choosesp <- function(app) {
 app_chooseid <- function(app) {
   ll <- app_showshp(app, info = "id")
   ttt <- tktoplevel()
-  tcl("wm", "attributes", ttt, topmost = TRUE)
+  tcl("wm", "transient", ttt, app$tt)
   tktitle(ttt) <- "Attributes"
   listid <- tklistbox(
     ttt,
@@ -2006,7 +2012,6 @@ app_chooseid <- function(app) {
     tkconfigure(app$id, textvariable = tclVar(x))
     tkgrid(app$id, row = 11, column = 1, sticky = "w")
     tkdestroy(ttt)
-    tcl("wm", "attributes", app$tt, topmost = TRUE)
   }
   listidbut <- tkbutton(
     ttt,
@@ -2030,7 +2035,7 @@ app_chooseid <- function(app) {
 app_chooseregion <- function(app) {
   ll <- app_showshp(app, info = "region")
   ttt <- tktoplevel()
-  tcl("wm", "attributes", ttt, topmost = TRUE)
+  tcl("wm", "transient", ttt, app$tt)
   tktitle(ttt) <- "Regions"
 
   choixderegion <- unique(ll$region) # car on veut conserver le nb total pour faciliter le subsettage
@@ -2051,7 +2056,6 @@ app_chooseregion <- function(app) {
     tkconfigure(app$region, textvariable = tclVar(x))
     tkgrid(app$region, row = 12, column = 1, sticky = "w")
     tkdestroy(ttt)
-    tcl("wm", "attributes", app$tt, topmost = TRUE)
   }
   mapchoice <- function() {
     tkconfigure(app$tt, cursor = "watch")
@@ -2116,7 +2120,6 @@ app_chooseregion <- function(app) {
     tkconfigure(app$region, textvariable = tclVar(x))
     tkgrid(app$region, row = 12, column = 1, sticky = "w")
     tkdestroy(ttt)
-    tcl("wm", "attributes", app$tt, topmost = TRUE)
   }
   listregionbut <- tkbutton(
     ttt,
@@ -2313,7 +2316,8 @@ app_butmask <- function(
   remove = FALSE,
   predict = get("predict", envir = app$rnest)
 ) {
-  tclServiceMode(FALSE)
+  old_mode <- tclServiceMode(FALSE)
+  on.exit(tclServiceMode(old_mode), add = TRUE)
   if (remove) {
     tkgrid.remove(get(paste(names(app$lgroups)[n], "mask"), envir = app$rnest))
     for (j in 1:(length(app$lgroups[[n]]))) {
@@ -2421,7 +2425,6 @@ app_butmask <- function(
       sticky = "nws"
     )
   }
-  tclServiceMode(TRUE)
 }
 
 
@@ -2469,7 +2472,8 @@ app_rejected <- function(app, fromobsbut = FALSE) {
 
 
 app_butmaskgroups <- function(app, n = 6, val = "1", remove = FALSE) {
-  tclServiceMode(FALSE)
+  old_mode <- tclServiceMode(FALSE)
+  on.exit(tclServiceMode(old_mode), add = TRUE)
   pos <- 20
   co <- 9
   if (remove) {
@@ -2572,7 +2576,6 @@ app_butmaskgroups <- function(app, n = 6, val = "1", remove = FALSE) {
       )
     }
   }
-  tclServiceMode(TRUE)
 }
 
 
@@ -2598,7 +2601,8 @@ app_relistsp <- function(app, sg, lg) {
     tkdelete(app$listid, 0, "end")
     return()
   }
-  tclServiceMode(FALSE)
+  old_mode <- tclServiceMode(FALSE)
+  on.exit(tclServiceMode(old_mode), add = TRUE)
   temp <- list()
   for (i in 1:length(ans)) {
     temp[[i]] <- apply(
@@ -2624,7 +2628,6 @@ app_relistsp <- function(app, sg, lg) {
     }
     tkgrid(app$listid, row = 3, rowspan = 32, column = 4, sticky = "ns")
   }
-  tclServiceMode(TRUE)
 }
 
 
@@ -2745,7 +2748,10 @@ app_loaddata <- function(app) {
   }
 
   browse <- function(num) {
-    x <- gsub("\\\\", "/", file.choose())
+    x <- choose_file()
+    if (is.null(x)) {
+      return(invisible())
+    }
     tkconfigure(get(paste("ent", num, sep = "")), textvariable = tclVar(x))
     tkgrid(get(paste("ent", num, sep = "")), row = num * 2, column = 0)
   }
@@ -2884,7 +2890,7 @@ app_widget <- function(app, predict = FALSE) {
     tkgrid(tklabel(app$tt, text = ""), row = 35)
     tkgrid(tklabel(app$tt, text = "   "), row = 0, column = app$n + 8 + 1)
     tkgrid(app$groupq, row = 34, column = 6, sticky = "w")
-    tkgrid(app$butobs, column = 0, row = 36, columnspan = 100, sticky = "ns")
+    tkgrid(app$butobs, column = 0, row = 36, columnspan = 100, sticky = "we")
     #tkgrid(tklabel(tt,text=""),row=37)
     tkgrid.remove(app$butsp, app$butspq)
     tkgrid.remove(app$butpred)
@@ -2916,7 +2922,7 @@ app_widget <- function(app, predict = FALSE) {
     tkgrid(app$butspq, column = 2, row = 17)
     tkgrid(app$buteco, column = 0, row = 18, columnspan = 4)
     tkgrid(app$butecoq, column = 2, row = 18)
-    tkgrid(app$butpred, column = 0, row = 36, columnspan = 100, sticky = "ns")
+    tkgrid(app$butpred, column = 0, row = 36, columnspan = 100, sticky = "we")
     tkgrid.remove(app$butobs)
     tkgrid.remove(app$yearcal, app$spcal, app$regioncal)
     #l<-getopt()
@@ -2926,7 +2932,8 @@ app_widget <- function(app, predict = FALSE) {
 
 
 tk.single.nest <- function(list_lang) {
-  tclServiceMode(FALSE)
+  old_mode <- tclServiceMode(FALSE)
+  on.exit(tclServiceMode(old_mode), add = TRUE)
 
   tt <- tktoplevel()
   tktitle(tt) <- list_lang$titlesnlabl
@@ -3023,7 +3030,6 @@ tk.single.nest <- function(list_lang) {
   tkgrid(tklabel(tt, text = ""), columnspan = 2)
   tkgrid(boutonc, columnspan = 4)
   tkgrid(tklabel(tt, text = ""), columnspan = 2)
-  tclServiceMode(TRUE)
 }
 
 
@@ -3031,7 +3037,8 @@ tk.single.nest.test <- function(
   dates = c("2000-05-01", "2000-05-30"),
   list_lang
 ) {
-  tclServiceMode(FALSE)
+  old_mode <- tclServiceMode(FALSE)
+  on.exit(tclServiceMode(old_mode), add = TRUE)
 
   tt <- tktoplevel()
   tktitle(tt) <- list_lang$titlesntlabl
@@ -3310,7 +3317,6 @@ tk.single.nest.test <- function(
     columnspan = 2
   )
   tkgrid(bouton2, row = n + 3 - 1, column = 4, columnspan = 2)
-  tclServiceMode(TRUE)
 }
 
 
@@ -3320,6 +3326,17 @@ cat_brs <- function(n = 1) {
 
 
 # Shows an information message box.
+# Asks for one file with the Tk file dialog (file.choose() prompts in the
+# console on Unix). Returns the path with forward slashes, or NULL if cancelled.
+choose_file <- function(...) {
+  x <- tk_choose.files(multi = FALSE, ...)
+  if (length(x) == 0 || identical(x, "")) {
+    return(NULL)
+  }
+  gsub("\\\\", "/", x)
+}
+
+
 tk_info <- function(message) {
   tkmessageBox(title = "", message = message, icon = "info", type = "ok")
 }

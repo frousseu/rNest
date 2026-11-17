@@ -22,7 +22,8 @@
 #' @importFrom tcltk tkgrid.remove tkgrid.rowconfigure tkgrid.size tkinsert
 #' @importFrom tcltk tklabel tklistbox tkmenu tkmessageBox tkpack tkradiobutton
 #' @importFrom tcltk tkscrollbar tkselection.clear tkselection.set tkset
-#' @importFrom tcltk `tktitle<-` tktoplevel tkwm.geometry tkwm.resizable tkyview
+#' @importFrom tcltk `tktitle<-` tk_choose.files tktoplevel tkwm.geometry
+#' @importFrom tcltk tkwm.resizable tkyview
 #' @importFrom utils data flush.console head tail write.table
 ## usethis namespace: end
 NULL
